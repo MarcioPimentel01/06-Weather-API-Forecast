@@ -1,11 +1,38 @@
 //5 days Forecast url - api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}
 //https://api.openweathermap.org/data/2.5/forecast?q=orlando&appid=15cc27ace4d4eac55708dcf5dd1ea30d"
 
-fetchData()
+const APIKey = "15cc27ace4d4eac55708dcf5dd1ea30d"
+const _btnSearch = document.getElementById(`btnSearch`)
+const _dropdownSearch = document.querySelectorAll(`.dropdown-item`)
+
+// ==============================================================================================
+//                             Event Listeners
+// ==============================================================================================
+
+document.addEventListener(`DOMContentLoaded`, (ev) => {
+    ev.preventDefault()
+    
+    _btnSearch.addEventListener(`click`, () => {
+         console.log(`ok`)
+        let _inputSearch = document.getElementById(`inputSearch`).value
+        console.log(_inputSearch)
+    })
+})
+
+_dropdownSearch.forEach(itemSearch => { //forEach was used because I'm using a querySelectoAll to targer multiple items
+    itemSearch.addEventListener(`click`, () => {
+        console.log(`ok`)
+    })
+})
+
+
+// fetchData()
+
+
 
 async function fetchData() {
     try {
-        const response = await fetch("https://api.openweathermap.org/data/2.5/forecast?q=orlando&appid=15cc27ace4d4eac55708dcf5dd1ea30d")
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${_inputSearch}&appid=${APIKey}`)
 
             if (!response.ok) {
                 throw new console.error('Unable to fetch information at this moment');
