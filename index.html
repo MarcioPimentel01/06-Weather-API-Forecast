@@ -38,11 +38,11 @@
                     Last Searches
                 </a>
                 <ul class="dropdown-menu dropdown-menu-dark">
-                  <li><a class="dropdown-item" href="#">Last 5 Searches</a></li>
-                  <li><a class="dropdown-item" href="#">Last 5 Searches</a></li>
-                  <li><a class="dropdown-item" href="#">Last 5 Searches</a></li>
-                  <li><a class="dropdown-item" href="#">Last 5 Searches</a></li>
-                  <li><a class="dropdown-item" href="#">Last 5 Searches</a></li>
+                  <li><a class="dropdown-item" id="arrayIndex0"> <!-- last 5 cities reserch bar --> </a></li>
+                  <li><a class="dropdown-item" id="arrayIndex1"> <!-- last 5 cities reserch bar --> </a></li>
+                  <li><a class="dropdown-item" id="arrayIndex2"> <!-- last 5 cities reserch bar --> </a></li>
+                  <li><a class="dropdown-item" id="arrayIndex3"> <!-- last 5 cities reserch bar --> </a></li>
+                  <li><a class="dropdown-item" id="arrayIndex4"> <!-- last 5 cities reserch bar --> </a></li>
                   <li>
                     <hr class="dropdown-divider">
                   </li>
@@ -93,26 +93,24 @@
               Today's Weather
             </div>
             <div class="card-body">
-              <h5 class="card-title">City chosen by the user</h5>
+              <h5 class="card-title">  <!-- City chosen by the user !-->  </h5>
               <p class="card-text">Wherever BS the API is saying</p>
             </div>
           </div>
     </div><br>
-
+    
     <div class="container-fluid">
-        <div class="card-header">
-            Today's Weather
-          </div>
-
-        <div class="card" style="width: 18rem;">
-
-            <div class="card-body">
-              <h5 class="card-title">City Name</h5>
-              <h6 class="card-subtitle mb-2 text-body-secondary">Type of weather</h6>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+        <div class="card">
+            <div class="card-header">
+              5 Days Forecast
             </div>
+              <div id="forecastDiv">
+                <!-- dynamic content goes here -->
+
+              </div>
           </div>
-    </div>
+    </div><br>
+
 
     
       

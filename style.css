@@ -7,3 +7,14 @@
     align-items: center;
     margin-top: 10px;
 }
+
+#forecastDiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; 
+
+}
+
+p#emoji.card-text{
+    size: 10rem;
+}
