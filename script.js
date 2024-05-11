@@ -6,11 +6,18 @@ const _btnSearch = document.getElementById(`btnSearch`)
 const _dropdownSearch = document.querySelectorAll(`.dropdown-item`)
 const _inputSearch = document.getElementById(`inputSearch`)
 const _cards = document.getElementById(`forecastDiv`)
+const _banner = document.getElementById(`bannerDiv`)
+const _favoriteCities = document.getElementById(`favorite-cities`)
 const _lastSearch0 = document.getElementById(`arrayIndex0`)
 const _lastSearch1 = document.getElementById(`arrayIndex1`)
 const _lastSearch2 = document.getElementById(`arrayIndex2`)
 const _lastSearch3 = document.getElementById(`arrayIndex3`)
 const _lastSearch4 = document.getElementById(`arrayIndex4`)
+const _lastSearch5 = document.getElementById(`arrayIndex5`)
+const _lastSearch6 = document.getElementById(`arrayIndex6`)
+const _lastSearch7 = document.getElementById(`arrayIndex7`)
+const _lastSearch8 = document.getElementById(`arrayIndex8`)
+const _lastSearch9 = document.getElementById(`arrayIndex9`)
 
 const cities = []
 
@@ -30,7 +37,9 @@ _btnSearch.addEventListener(`click`, async (ev) => {
         try {
             const forecastData = await fetchData(_inputSearch);
             console.log(forecastData)
+            localStorage.setItem('forecastData', JSON.stringify(forecastData));
             displayforecastInfo(forecastData);
+            displayBanner(forecastData)
         } catch (error) {
             console.error(error);
             displayError(error);
@@ -44,6 +53,10 @@ _btnSearch.addEventListener(`click`, async (ev) => {
         itemSearch.addEventListener(`click`, () => {
             console.log(`ok`)
         })
+    })
+
+    _favoriteCities.addEventListener(`click`, () => {
+        console.log(`ok`)
     })
     
     
@@ -61,16 +74,21 @@ async function fetchData() {
         }
         
         return await response.json();
+        
     } catch (error) {
         console.error(error);
         throw error;
     }
+
+    
 }
 
 
 // =====================================================================================================================================
 //                             Functions
 // =====================================================================================================================================
+
+
 
 function displayforecastInfo(data) {
     const {
@@ -95,17 +113,15 @@ function displayforecastInfo(data) {
             } = forecastEntry;
 
             
+            const cardDisplay = document.createElement(`div`);
+            cardDisplay.classList.add(`card`, `mb-3`); // Added mb-3 class for margin-bottom
 
-            // Create a new card for each forecast entry
-            const _cardDisplay = document.createElement(`div`);
-            _cardDisplay.classList.add(`card`, `mb-3`); // Added mb-3 class for margin-bottom
-
-            _cardDisplay.innerHTML = `
-            <div class="card" style="width: 18rem;">
+            cardDisplay.innerHTML = `
+            <div class="card" style="width: 17rem;">
             <div class="card-body">
             <h5 class="card-title">${name}</h5>
             <h6 class="card-subtitle mb-2 text-muted">${description}</h6>
-            <p class="card-text" id="emoji"> ${getApiEmoji(id)}</p>
+            <p class="card-text" id="emoji"><img width="120" height="120" src="${getApiEmoji(id)}" alt="snow-storm"/></p>
             <p class="card-text">Temperature: ${((temp - 273.15) * (9 / 5) + 32).toFixed(1)}°F</p>
             <p class="card-text">Humidity: ${humidity}%</p>
             <p class="card-text">Date Time: ${dt_txt}</p>
@@ -113,11 +129,50 @@ function displayforecastInfo(data) {
             </div>
             `;
  
-
-            _cards.appendChild(_cardDisplay);
+            _cards.appendChild(cardDisplay);
         }
     });
 }
+
+function displayBanner(data) {
+    const storedForecastData = localStorage.getItem('forecastData');
+    const forecastData = JSON.parse(storedForecastData);
+    console.log(forecastData);
+    
+    const { city: { name }, list } = data;
+ 
+    _banner.innerHTML = '';
+    const dataToDisplay = [5];
+
+    dataToDisplay.forEach(index => {
+        const bannerInfo = list.find((_, i) => i === index);
+
+        if (bannerInfo) {
+            const { main: { temp, humidity }, weather: [{ description, id }], dt_txt } = bannerInfo;
+    
+            const bannerDisplay = document.createElement(`div`);
+            bannerDisplay.classList.add(`card`, `mb-3`); // Added mb-3 class for margin-bottom
+
+            bannerDisplay.innerHTML = `
+                <div class="card">
+                    <div class="card-body" id="banner">
+                        <h5 class="card-title">${name}</h5>
+                        <h6 class="card-subtitle mb-3 text-muted">${description}</h6>
+                        <p class="card-text" id="emoji"><img width="120" height="120" src="${getApiEmoji(id)}" alt="snow-storm"/></p>
+                        <p class="card-text">Temperature: ${((temp - 273.15) * (9 / 5) + 32).toFixed(1)}°F</p>
+                        <p class="card-text">Humidity: ${humidity}%</p>
+                        <p class="card-text">Date Time: ${dt_txt}</p>
+                    </div>
+                </div>
+            `;
+ 
+            _banner.appendChild(bannerDisplay);
+        }
+    });
+}
+
+
+
 
 
 
@@ -125,19 +180,23 @@ function getApiEmoji(weatherId){
 
     switch(true){
         case (weatherId >= 200 && weatherId < 300):
-            return "⛈️";
+            return "images/icons8-storm-100.png"
         case (weatherId >= 300 && weatherId < 400):
-            return "🌧️";
-        case (weatherId >= 500 && weatherId < 600):
-            return "🌦️";
+            return "images/icons8-rain-cloud-100.png"
+        case (weatherId >= 500 && weatherId < 510):
+            return "images/icons8-rainfall-100.png";
+        case (weatherId === 511):
+            return "images/icons8-snow-storm-100.png";
+        case (weatherId >= 512 && weatherId < 600):
+            return "images/icons8-moderate-rain-100.png";
         case (weatherId >= 600 && weatherId < 700):
-            return "❄️";
+            return "images/icons8-snow-100.png";
         case (weatherId >= 700 && weatherId < 800):
-            return "🌫️";
+            return "images/icons8-snow-100.png";
         case (weatherId === 800):
-            return "☀️";
-        case (weatherId >= 801 && weatherId < 810):
-            return "☁️";
+            return "images/icons8-summer-100.png"
+        case (weatherId >= 801 && weatherId < 900):
+            return "images/icons8-haze-100.png";
         default:
             return "❓";
     }

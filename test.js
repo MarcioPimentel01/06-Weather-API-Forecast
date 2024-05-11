@@ -104,13 +104,4 @@ function displayError(message){
     card.appendChild(errorDisplay);
 }
 
-let cityforecast = forecastdata.list
-     let fivedayforecast = [
-        cityforecast[7],
-        cityforecast[15],
-        cityforecast[23],
-        cityforecast[31],
-        cityforecast[39]
-     ]
-     forecasthistory.push(...fivedayforecast)
-    }
+

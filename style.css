@@ -11,10 +11,37 @@
 #forecastDiv {
     display: flex;
     flex-direction: row;
-    justify-content: space-between; 
+    justify-content: space-around; 
+
+    margin-bottom: 1rem;
+    border-radius: 2px;
+    background: linear-gradient(145deg, #dbd9d9, #868eeadd);
+}
+
+.card{
+   margin-top: 1rem;
+   margin-left: 1rem;
+}
+
+.card-header{
+    font-size: 2rem;
+    background-color: darkblue;
+    color: white;
+}
+
+.card-body{
+   
+    border-radius: 0px;
+    background: linear-gradient(145deg, #dbd9d9, #868eeadd);
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+   
 
 }
 
-p#emoji.card-text{
-    size: 10rem;
+#banner
+
+.card-text{
+    font-weight: normal;
 }
