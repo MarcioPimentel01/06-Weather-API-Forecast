@@ -7,17 +7,8 @@ const _dropdownSearch = document.querySelectorAll(`.dropdown-item`)
 const _inputSearch = document.getElementById(`inputSearch`)
 const _cards = document.getElementById(`forecastDiv`)
 const _banner = document.getElementById(`bannerDiv`)
-const _favoriteCities = document.getElementById(`favorite-cities`)
-const _lastSearch0 = document.getElementById(`arrayIndex0`)
-const _lastSearch1 = document.getElementById(`arrayIndex1`)
-const _lastSearch2 = document.getElementById(`arrayIndex2`)
-const _lastSearch3 = document.getElementById(`arrayIndex3`)
-const _lastSearch4 = document.getElementById(`arrayIndex4`)
-const _lastSearch5 = document.getElementById(`arrayIndex5`)
-const _lastSearch6 = document.getElementById(`arrayIndex6`)
-const _lastSearch7 = document.getElementById(`arrayIndex7`)
-const _lastSearch8 = document.getElementById(`arrayIndex8`)
-const _lastSearch9 = document.getElementById(`arrayIndex9`)
+const _buttons = document.querySelectorAll(`.btn-light`)
+
 
 const cities = []
 
@@ -55,9 +46,28 @@ _btnSearch.addEventListener(`click`, async (ev) => {
         })
     })
 
-    _favoriteCities.addEventListener(`click`, () => {
-        console.log(`ok`)
-    })
+    _buttons.forEach(button => {
+        button.addEventListener('click', async (clickEvent) => {
+            const cityName = clickEvent.target.textContent;
+            console.log('Clicked city:', cityName);
+            cities.unshift(cityName)
+
+            if (cityName) {
+                try {
+                    const forecastData = await fetchData(cityName);
+                    console.log(forecastData)
+                    localStorage.setItem('forecastData', JSON.stringify(forecastData));
+                    displayforecastInfo(forecastData);
+                    displayBanner(forecastData)
+                } catch (error) {
+                    console.error(error);
+                    displayError(error);
+                }
+            } else {
+                // Handle case where input search is empty
+            }
+        });
+    });
     
     
 // ==================================================================================================================================
@@ -118,14 +128,14 @@ function displayforecastInfo(data) {
 
             cardDisplay.innerHTML = `
             <div class="card" style="width: 17rem;">
-            <div class="card-body">
-            <h5 class="card-title">${name}</h5>
-            <h6 class="card-subtitle mb-2 text-muted">${description}</h6>
-            <p class="card-text" id="emoji"><img width="120" height="120" src="${getApiEmoji(id)}" alt="snow-storm"/></p>
-            <p class="card-text">Temperature: ${((temp - 273.15) * (9 / 5) + 32).toFixed(1)}°F</p>
-            <p class="card-text">Humidity: ${humidity}%</p>
-            <p class="card-text">Date Time: ${dt_txt}</p>
-            </div>
+                <div class="card-body">
+                    <h5 class="card-title">${name}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">${description}</h6>
+                        <p class="card-text" id="emoji"><img width="120" height="120" src="${getApiEmoji(id)}" alt="snow-storm"/></p>
+                        <p class="card-text">Temperature: ${((temp - 273.15) * (9 / 5) + 32).toFixed(1)}°F</p>
+                        <p class="card-text">Humidity: ${humidity}%</p>
+                        <p class="card-text">Date Time: ${dt_txt}</p>
+                </div>
             </div>
             `;
  
@@ -157,11 +167,11 @@ function displayBanner(data) {
                 <div class="card">
                     <div class="card-body" id="banner">
                         <h5 class="card-title">${name}</h5>
-                        <h6 class="card-subtitle mb-3 text-muted">${description}</h6>
-                        <p class="card-text" id="emoji"><img width="120" height="120" src="${getApiEmoji(id)}" alt="snow-storm"/></p>
-                        <p class="card-text">Temperature: ${((temp - 273.15) * (9 / 5) + 32).toFixed(1)}°F</p>
-                        <p class="card-text">Humidity: ${humidity}%</p>
-                        <p class="card-text">Date Time: ${dt_txt}</p>
+                            <h6 class="card-subtitle mb-3 text-muted">${description}</h6>
+                            <p class="card-text" id="emoji"><img width="120" height="120" src="${getApiEmoji(id)}" alt="snow-storm"/></p>
+                            <p class="card-text">Temperature: ${((temp - 273.15) * (9 / 5) + 32).toFixed(1)}°F</p>
+                            <p class="card-text">Humidity: ${humidity}%</p>
+                            <p class="card-text">Date Time: ${dt_txt}</p>
                     </div>
                 </div>
             `;
@@ -170,11 +180,6 @@ function displayBanner(data) {
         }
     });
 }
-
-
-
-
-
 
 function getApiEmoji(weatherId){
 
