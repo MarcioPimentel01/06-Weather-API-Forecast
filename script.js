@@ -1,90 +1,87 @@
-//5 days Forecast url - api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}
-//https://api.openweathermap.org/data/2.5/forecast?q=orlando&appid=15cc27ace4d4eac55708dcf5dd1ea30d"
-
 const APIKey = "15cc27ace4d4eac55708dcf5dd1ea30d";
-const _btnSearch = document.getElementById(`btnSearch`);
-const _dropdownSearch = document.querySelectorAll(`.dropdown-menu-dark`);
-const _inputSearch = document.getElementById(`inputSearch`);
-const _cards = document.getElementById(`forecastDiv`);
-const _banner = document.getElementById(`bannerDiv`);
-const _buttons = document.querySelectorAll(`.btn-light`);
-const _clearHistory = document.getElementById(`clearHistory`);
-const _dropdownMenu = document.querySelector(".dropdown-menu");
+const _btnSearch = document.getElementById('btnSearch');
+const _dropdownSearch = document.querySelectorAll('.dropdown-menu-dark');
+const _inputSearch = document.getElementById('inputSearch');
+const _cards = document.getElementById('forecastDiv');
+const _banner = document.getElementById('bannerDiv');
+const _buttons = document.querySelectorAll('.btn-light');
+const _clearHistory = document.getElementById('clearHistory');
+const _dropdownMenu = document.querySelector('.dropdown-menu');
 
-const cities = [];
+// Retrieve cities from localStorage or initialize to an empty array
+let cities = JSON.parse(localStorage.getItem('cities')) || [];
+
+// Load the last search menu on page load
+document.addEventListener('DOMContentLoaded', () => {
+  cities.forEach(city => {
+    addCityToMenu(city);
+  });
+
+  if (cities.length > 0) {
+    fetchData(cities[0])
+      .then(data => {
+        displayforecastInfo(data);
+        displayBanner(data);
+      })
+      .catch(error => console.error(error));
+  }
+});
 
 // ========================================================================================================================
 //                             Event Listeners
 // ========================================================================================================================
 
-_btnSearch.addEventListener(`click`, async (ev) => {
+_btnSearch.addEventListener('click', async (ev) => {
   ev.preventDefault();
+  const city = _inputSearch.value.trim();
 
-  const _inputSearch = document.getElementById(`inputSearch`).value.trim();
-  console.log(_inputSearch);
-  cities.unshift(_inputSearch);
-
-  if (_inputSearch) {
+  if (city) {
     try {
-      const forecastData = await fetchData(_inputSearch);
-      console.log(forecastData);
-      localStorage.setItem("forecastData", JSON.stringify(forecastData));
+      const forecastData = await fetchData(city);
+      cities.unshift(city);
+      localStorage.setItem('cities', JSON.stringify(cities));
+      localStorage.setItem('forecastData', JSON.stringify(forecastData));
       displayforecastInfo(forecastData);
       displayBanner(forecastData);
-      lastSearchMenu();
+      addCityToMenu(city);
     } catch (error) {
       console.error(error);
-      displayError(error);
+      displayError(error.message);
     }
-  } else {
   }
 });
 
-
-
 _buttons.forEach((button) => {
-  button.addEventListener("click", async (clickEvent) => {
+  button.addEventListener('click', async (clickEvent) => {
     const cityName = clickEvent.target.textContent;
-    console.log("Clicked city:", cityName);
-    cities.unshift(cityName);
-
     if (cityName) {
       try {
         const forecastData = await fetchData(cityName);
-        console.log(forecastData);
-        localStorage.setItem("forecastData", JSON.stringify(forecastData));
+        cities.unshift(cityName);
+        localStorage.setItem('cities', JSON.stringify(cities));
+        localStorage.setItem('forecastData', JSON.stringify(forecastData));
         displayforecastInfo(forecastData);
         displayBanner(forecastData);
-        lastSearchMenu();
+        addCityToMenu(cityName);
       } catch (error) {
         console.error(error);
-        displayError(error);
+        displayError(error.message);
       }
-    } else {
     }
   });
 });
 
-
-_clearHistory.addEventListener(`click`, () => {
-    console.log(`Clear History button clicked`);
-    console.log(`Before clearing:`, _dropdownMenu.innerHTML);
-    _dropdownMenu.innerHTML = "";
-    console.log(`After clearing:`, _dropdownMenu.innerHTML);
-    console.log(`Before clearing cities:`, cities);
-    cities.length = 0;
-    console.log(`After clearing cities:`, cities);
-  });
-  
-  
+_clearHistory.addEventListener('click', () => {
+  clearAllSearches();
+});
 
 // ==================================================================================================================================
 //                             Async Function
 // ==================================================================================================================================
 
-async function fetchData() {
+async function fetchData(city) {
   try {
-    const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cities[0]}&appid=${APIKey}`;
+    const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${APIKey}`;
     const response = await fetch(apiUrl);
 
     if (!response.ok) {
@@ -101,111 +98,76 @@ async function fetchData() {
 // =====================================================================================================================================
 //                             Functions
 // =====================================================================================================================================
-function lastSearchMenu() {
-  const _dropdownMenu = document.querySelector(".dropdown-menu");
 
-  _dropdownMenu.innerHTML += "";
-
-  const menuItem = document.createElement("li");
-  menuItem.classList.add("dropdown-item");
-  menuItem.textContent = cities[0];
+function addCityToMenu(city) {
+  const menuItem = document.createElement('li');
+  menuItem.classList.add('dropdown-item');
+  menuItem.textContent = city;
   _dropdownMenu.appendChild(menuItem);
+  menuItem.addEventListener('click', async () => {
+    try {
+      const forecastData = await fetchData(city);
+      displayforecastInfo(forecastData);
+      displayBanner(forecastData);
+    } catch (error) {
+      console.error(error);
+      displayError(error.message);
+    }
+  });
 }
 
 function displayforecastInfo(data) {
-  const {
-    city: { name },
-    list,
-  } = data;
-
+  const { city: { name }, list } = data;
   _cards.innerHTML = "";
 
-  // Array contains information in different times of the day.
   const indicesToDisplay = [7, 15, 23, 31, 39];
-
-  indicesToDisplay.forEach((index) => {
-    const forecastEntry = list.find((_, i) => i === index);
-
+  indicesToDisplay.forEach(index => {
+    const forecastEntry = list[index];
     if (forecastEntry) {
-      const {
-        main: { temp, humidity },
-        weather: [{ description, id }],
-        dt_txt,
-      } = forecastEntry;
+      const { main: { temp, humidity }, weather: [{ description, id }], dt_txt } = forecastEntry;
 
-      const cardDisplay = document.createElement(`div`);
-      cardDisplay.classList.add(`card`, `mb-3`);
-
+      const cardDisplay = document.createElement('div');
+      cardDisplay.classList.add('card', 'mb-3');
       cardDisplay.innerHTML = `
-            <div class="card" style="width: 17rem;">
-                <div class="card-body">
-                    <h5 class="card-title">${name}</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">${description}</h6>
-                        <p class="card-text" id="emoji"><img width="120" height="120" src="${getApiEmoji(
-                          id
-                        )}" alt="snow-storm"/></p>
-                        <p class="card-text">Temperature: ${(
-                          (temp - 273.15) * (9 / 5) +
-                          32
-                        ).toFixed(1)}°F</p>
-                        <p class="card-text">Humidity: ${humidity}%</p>
-                        <p class="card-text">Date Time: ${dt_txt}</p>
-                </div>
-            </div>
-            `;
-
+        <div class="card" style="width: 17rem;">
+          <div class="card-body">
+            <h5 class="card-title">${name}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">${description}</h6>
+            <p class="card-text" id="emoji"><img width="120" height="120" src="${getApiEmoji(id)}" alt="weather-icon"/></p>
+            <p class="card-text">Temperature: ${((temp - 273.15) * (9 / 5) + 32).toFixed(1)}°F</p>
+            <p class="card-text">Humidity: ${humidity}%</p>
+            <p class="card-text">Date Time: ${dt_txt}</p>
+          </div>
+        </div>`;
       _cards.appendChild(cardDisplay);
     }
   });
 }
 
 function displayBanner(data) {
-  const storedForecastData = localStorage.getItem("forecastData");
-  const forecastData = JSON.parse(storedForecastData);
-  console.log(forecastData);
-
-  const {
-    city: { name },
-    list,
-  } = data;
-
+  const { city: { name }, list } = data;
   _banner.innerHTML = "";
-  const dataToDisplay = [5];
+  const index = 0;
+  const bannerInfo = list[index];
 
-  dataToDisplay.forEach((index) => {
-    const bannerInfo = list.find((_, i) => i === index);
+  if (bannerInfo) {
+    const { main: { temp, humidity }, weather: [{ description, id }], dt_txt } = bannerInfo;
 
-    if (bannerInfo) {
-      const {
-        main: { temp, humidity },
-        weather: [{ description, id }],
-        dt_txt,
-      } = bannerInfo;
-
-      const bannerDisplay = document.createElement(`div`);
-      bannerDisplay.classList.add(`card`, `mb-3`);
-
-      bannerDisplay.innerHTML = `
-                <div class="card">
-                    <div class="card-body" id="banner">
-                        <h5 class="card-title">${name}</h5>
-                            <h6 class="card-subtitle mb-3 text-muted">${description}</h6>
-                            <p class="card-text" id="emoji"><img width="120" height="120" src="${getApiEmoji(
-                              id
-                            )}" alt="snow-storm"/></p>
-                            <p class="card-text">Temperature: ${(
-                              (temp - 273.15) * (9 / 5) +
-                              32
-                            ).toFixed(1)}°F</p>
-                            <p class="card-text">Humidity: ${humidity}%</p>
-                            <p class="card-text">Date Time: ${dt_txt}</p>
-                    </div>
-                </div>
-            `;
-
-      _banner.appendChild(bannerDisplay);
-    }
-  });
+    const bannerDisplay = document.createElement('div');
+    bannerDisplay.classList.add('card', 'mb-3');
+    bannerDisplay.innerHTML = `
+      <div class="card">
+        <div class="card-body" id="banner">
+          <h5 class="card-title">${name}</h5>
+          <h6 class="card-subtitle mb-3 text-muted">${description}</h6>
+          <p class="card-text" id="emoji"><img width="120" height="120" src="${getApiEmoji(id)}" alt="weather-icon"/></p>
+          <p class="card-text">Temperature: ${((temp - 273.15) * (9 / 5) + 32).toFixed(1)}°F</p>
+          <p class="card-text">Humidity: ${humidity}%</p>
+          <p class="card-text">Date Time: ${dt_txt}</p>
+        </div>
+      </div>`;
+    _banner.appendChild(bannerDisplay);
+  }
 }
 
 function getApiEmoji(weatherId) {
@@ -234,13 +196,14 @@ function getApiEmoji(weatherId) {
 }
 
 function displayError(message) {
-  const errorDisplay = document.createElement(`h5`);
+  const errorDisplay = document.createElement('h5');
   errorDisplay.textContent = message;
-  errorDisplay.classList.add(`card-title`);
-
+  errorDisplay.classList.add('card-title');
   _cards.appendChild(errorDisplay);
 }
 
-// =====================================================================================================================================
-//                             End
-// =====================================================================================================================================
+function clearAllSearches() {
+  _dropdownMenu.innerHTML = "";
+  cities = [];
+  localStorage.removeItem('cities');
+}
